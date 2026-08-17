@@ -1,962 +1,1644 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="he" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#161A33">
-<title>מעקב תינוק</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;900&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#12162c;
-    --bg-elev:#1e2348;
-    --bg-elev2:#282f5e;
-    --text:#f5f0e6;
-    --text-dim:#a7addb;
-    --peach:#f6a97a;
-    --peach-dim:#c98861;
-    --blue:#8fb8de;
-    --good:#8fd6a8;
-    --warn:#f4c77a;
-    --alert:#e8776c;
-    --pee:#7fc7e0;
-    --poop:#c99a63;
-    --radius-lg:24px;
-    --radius-md:16px;
-    --radius-sm:10px;
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:radial-gradient(circle at 50% -10%, #232a54 0%, var(--bg) 55%);
-    color:var(--text);
-    font-family:'Heebo','Segoe UI',Arial,sans-serif;
-    min-height:100vh;
-    padding-bottom:40px;
-  }
-  .app{max-width:520px;margin:0 auto;padding:18px 16px 8px;}
-  header{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:6px 2px 14px;
-  }
-  header h1{
-    font-family:'Rubik',sans-serif;
-    font-size:20px;font-weight:700;margin:0;
-    display:flex;align-items:center;gap:8px;
-  }
-  .icon-btn{
-    background:var(--bg-elev);border:none;color:var(--text);
-    width:40px;height:40px;border-radius:50%;
-    font-size:20px;display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
-  }
-  .icon-btn:active{background:var(--bg-elev2);}
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="theme-color" content="#161A33" />
+    <title>מעקב תינוק</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;900&family=Heebo:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #12162c;
+        --bg-elev: #1e2348;
+        --bg-elev2: #282f5e;
+        --text: #f5f0e6;
+        --text-dim: #a7addb;
+        --peach: #f6a97a;
+        --peach-dim: #c98861;
+        --blue: #8fb8de;
+        --good: #8fd6a8;
+        --warn: #f4c77a;
+        --alert: #e8776c;
+        --pee: #7fc7e0;
+        --poop: #c99a63;
+        --radius-lg: 24px;
+        --radius-md: 16px;
+        --radius-sm: 10px;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: radial-gradient(
+          circle at 50% -10%,
+          #232a54 0%,
+          var(--bg) 55%
+        );
+        color: var(--text);
+        font-family: "Heebo", "Segoe UI", Arial, sans-serif;
+        min-height: 100vh;
+        padding-bottom: 40px;
+      }
+      .app {
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 18px 16px 8px;
+      }
 
-  /* tabs */
-  .tab-bar{
-    display:flex;gap:6px;background:var(--bg-elev);padding:4px;
-    border-radius:16px;margin-bottom:20px;
-  }
-  .tab-btn{
-    flex:1;padding:11px 6px;border:none;background:none;color:var(--text-dim);
-    border-radius:12px;font-family:'Heebo',sans-serif;font-weight:700;font-size:14px;
-    cursor:pointer;transition:background .15s ease,color .15s ease;
-  }
-  .tab-btn.active{background:var(--bg-elev2);color:var(--text);}
-  .view{display:none;}
-  .view.active{display:block;}
+      /* --- AUTH SCREEN --- */
+      #authScreen {
+        position: fixed;
+        inset: 0;
+        background: var(--bg);
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        transition: opacity 0.3s ease;
+      }
+      #authScreen h1 {
+        font-family: "Rubik", sans-serif;
+        font-size: 28px;
+        margin-bottom: 30px;
+      }
+      .auth-form {
+        width: 100%;
+        max-width: 320px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .auth-form input {
+        background: var(--bg-elev);
+        border: none;
+        color: var(--text);
+        padding: 14px;
+        border-radius: var(--radius-sm);
+        font-size: 16px;
+        font-family: "Heebo", sans-serif;
+      }
+      .auth-toggle {
+        background: none;
+        border: none;
+        color: var(--text-dim);
+        margin-top: 10px;
+        cursor: pointer;
+        text-decoration: underline;
+        font-family: "Heebo", sans-serif;
+      }
 
-  /* status drop */
-  .status-card{
-    display:flex;flex-direction:column;align-items:center;
-    padding:14px 0 22px;
-  }
-  .drop{
-    position:relative;
-    width:220px;height:220px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    background:conic-gradient(from 180deg, var(--status-a,#8fd6a8), var(--status-b,#6fc98f), var(--status-a,#8fd6a8));
-    transition:background 1s ease;
-  }
-  .drop::before{
-    content:"";position:absolute;inset:-10px;border-radius:50%;
-    background:inherit;filter:blur(18px);opacity:.55;z-index:0;
-    animation:pulse 3.5s ease-in-out infinite;
-  }
-  @keyframes pulse{0%,100%{transform:scale(1);opacity:.45;}50%{transform:scale(1.06);opacity:.7;}}
-  .drop-inner{
-    position:relative;z-index:1;
-    width:182px;height:182px;border-radius:50%;
-    background:var(--bg-elev);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
-  }
-  .time-value{
-    font-family:'Rubik',sans-serif;font-weight:900;
-    font-size:38px;line-height:1.05;letter-spacing:.5px;
-    font-variant-numeric:tabular-nums;
-  }
-  .time-secs{font-size:15px;color:var(--text-dim);font-weight:500;margin-top:2px;}
-  .time-label{font-size:12px;color:var(--text-dim);margin-top:8px;max-width:130px;}
-  .last-feed-meta{margin-top:14px;font-size:13px;color:var(--text-dim);text-align:center;}
-  .last-feed-meta b{color:var(--text);font-weight:600;}
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 2px 14px;
+      }
+      header h1 {
+        font-family: "Rubik", sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .icon-btn {
+        background: var(--bg-elev);
+        border: none;
+        color: var(--text);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+      .icon-btn:active {
+        background: var(--bg-elev2);
+      }
 
-  /* stats */
-  .stats-row{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
-    margin-bottom:24px;
-  }
-  .stat-card{
-    background:var(--bg-elev);border-radius:var(--radius-md);
-    padding:12px 8px;text-align:center;
-  }
-  .stat-card .val{font-family:'Rubik',sans-serif;font-weight:700;font-size:20px;}
-  .stat-card .lbl{font-size:11px;color:var(--text-dim);margin-top:3px;}
+      /* tabs */
+      .tab-bar {
+        display: flex;
+        gap: 6px;
+        background: var(--bg-elev);
+        padding: 4px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 11px 6px;
+        border: none;
+        background: none;
+        color: var(--text-dim);
+        border-radius: 12px;
+        font-family: "Heebo", sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease;
+      }
+      .tab-btn.active {
+        background: var(--bg-elev2);
+        color: var(--text);
+      }
+      .view {
+        display: none;
+      }
+      .view.active {
+        display: block;
+      }
 
-  section h2{
-    font-family:'Rubik',sans-serif;font-size:15px;font-weight:700;
-    margin:0 0 10px 2px;color:var(--text-dim);
-  }
-  .quick-add{margin-bottom:26px;}
-  .preset-grid{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;
-  }
-  .preset-btn{
-    background:var(--bg-elev);border:1px solid rgba(255,255,255,.05);
-    color:var(--text);border-radius:var(--radius-md);
-    padding:14px 4px;font-family:'Rubik',sans-serif;font-weight:700;font-size:17px;
-    cursor:pointer;transition:transform .08s ease, background .15s ease;
-  }
-  .preset-btn:active{transform:scale(.95);background:var(--bg-elev2);}
-  .preset-btn span{display:block;font-family:'Heebo',sans-serif;font-weight:400;font-size:11px;color:var(--text-dim);margin-top:2px;}
-  .diaper-grid{grid-template-columns:repeat(3,1fr);}
-  .diaper-btn{padding:18px 4px;font-size:26px;}
-  .diaper-btn span{font-size:12px;margin-top:6px;}
-  .diaper-btn.pee{box-shadow:inset 0 0 0 1.5px rgba(127,199,224,.35);}
-  .diaper-btn.poop{box-shadow:inset 0 0 0 1.5px rgba(201,154,99,.35);}
-  .diaper-btn.both{box-shadow:inset 0 0 0 1.5px rgba(246,169,122,.35);}
-  .btn-custom{
-    width:100%;background:none;border:1.5px dashed var(--peach-dim);
-    color:var(--peach);border-radius:var(--radius-md);
-    padding:13px;font-size:14px;font-weight:600;font-family:'Heebo',sans-serif;
-    cursor:pointer;
-  }
-  .btn-custom:active{background:rgba(246,169,122,.08);}
+      /* status drop */
+      .status-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 14px 0 22px;
+      }
+      .drop {
+        position: relative;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: conic-gradient(
+          from 180deg,
+          var(--status-a, #8fd6a8),
+          var(--status-b, #6fc98f),
+          var(--status-a, #8fd6a8)
+        );
+        transition: background 1s ease;
+      }
+      .drop::before {
+        content: "";
+        position: absolute;
+        inset: -10px;
+        border-radius: 50%;
+        background: inherit;
+        filter: blur(18px);
+        opacity: 0.55;
+        z-index: 0;
+        animation: pulse 3.5s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.45;
+        }
+        50% {
+          transform: scale(1.06);
+          opacity: 0.7;
+        }
+      }
+      .drop-inner {
+        position: relative;
+        z-index: 1;
+        width: 182px;
+        height: 182px;
+        border-radius: 50%;
+        background: var(--bg-elev);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      }
+      .time-value {
+        font-family: "Rubik", sans-serif;
+        font-weight: 900;
+        font-size: 38px;
+        line-height: 1.05;
+        letter-spacing: 0.5px;
+        font-variant-numeric: tabular-nums;
+      }
+      .time-secs {
+        font-size: 15px;
+        color: var(--text-dim);
+        font-weight: 500;
+        margin-top: 2px;
+      }
+      .time-label {
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-top: 8px;
+        max-width: 130px;
+      }
+      .last-feed-meta {
+        margin-top: 14px;
+        font-size: 13px;
+        color: var(--text-dim);
+        text-align: center;
+      }
+      .last-feed-meta b {
+        color: var(--text);
+        font-weight: 600;
+      }
 
-  .history{margin-bottom:10px;}
-  .day-group{margin-bottom:16px;}
-  .day-title{
-    display:flex;align-items:baseline;justify-content:space-between;
-    font-size:12px;color:var(--text-dim);margin:0 0 6px 4px;font-weight:600;
-  }
-  .day-title .day-counts{font-size:11px;color:var(--text-dim);}
-  .feed-row{
-    display:flex;align-items:center;gap:12px;
-    background:var(--bg-elev);border-radius:var(--radius-md);
-    padding:11px 14px;margin-bottom:8px;cursor:pointer;
-  }
-  .feed-row:active{background:var(--bg-elev2);}
-  .feed-time{
-    font-family:'Rubik',sans-serif;font-weight:700;font-size:15px;
-    min-width:48px;
-  }
-  .feed-amount{
-    background:rgba(143,184,222,.15);color:var(--blue);
-    font-size:12px;font-weight:600;padding:4px 9px;border-radius:20px;
-  }
-  .diaper-tag{
-    font-size:16px;padding:4px 9px;border-radius:20px;
-    background:rgba(255,255,255,.05);
-  }
-  .feed-notes{font-size:12px;color:var(--text-dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .empty-state{
-    text-align:center;color:var(--text-dim);font-size:13px;padding:28px 10px;
-    background:var(--bg-elev);border-radius:var(--radius-md);
-  }
+      /* stats */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+      .stat-card {
+        background: var(--bg-elev);
+        border-radius: var(--radius-md);
+        padding: 12px 8px;
+        text-align: center;
+      }
+      .stat-card .val {
+        font-family: "Rubik", sans-serif;
+        font-weight: 700;
+        font-size: 20px;
+      }
+      .stat-card .lbl {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 3px;
+      }
 
-  /* modal */
-  .overlay{
-    position:fixed;inset:0;background:rgba(8,10,22,.72);
-    display:flex;align-items:flex-end;justify-content:center;
-    opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:50;
-  }
-  .overlay.open{opacity:1;pointer-events:auto;}
-  .sheet{
-    background:var(--bg-elev);width:100%;max-width:520px;
-    border-radius:22px 22px 0 0;padding:20px 18px 26px;
-    transform:translateY(20px);transition:transform .25s ease;
-    max-height:88vh;overflow-y:auto;
-  }
-  .overlay.open .sheet{transform:translateY(0);}
-  .sheet h3{font-family:'Rubik',sans-serif;font-size:18px;margin:0 0 16px;}
-  .field{margin-bottom:14px;}
-  .field label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;}
-  .field input, .field textarea{
-    width:100%;background:var(--bg-elev2);border:none;color:var(--text);
-    border-radius:var(--radius-sm);padding:12px 14px;font-size:15px;
-    font-family:'Heebo',sans-serif;
-  }
-  .field textarea{resize:none;min-height:60px;}
-  .amount-stepper{display:flex;align-items:center;gap:10px;}
-  .amount-stepper button{
-    width:44px;height:44px;border-radius:50%;border:none;
-    background:var(--bg-elev2);color:var(--text);font-size:20px;cursor:pointer;
-  }
-  .amount-stepper input{text-align:center;font-family:'Rubik',sans-serif;font-weight:700;font-size:18px;}
-  .type-select{display:flex;gap:8px;}
-  .type-select button{
-    flex:1;padding:14px 4px;border-radius:var(--radius-md);border:1.5px solid transparent;
-    background:var(--bg-elev2);color:var(--text-dim);font-size:22px;cursor:pointer;
-  }
-  .type-select button span{display:block;font-size:11px;font-family:'Heebo',sans-serif;margin-top:4px;}
-  .type-select button.active{border-color:var(--peach);color:var(--text);}
-  .sheet-actions{display:flex;gap:10px;margin-top:18px;}
-  .btn{
-    flex:1;padding:14px;border-radius:var(--radius-md);border:none;
-    font-family:'Heebo',sans-serif;font-weight:700;font-size:15px;cursor:pointer;
-  }
-  .btn-primary{background:var(--peach);color:#2a1a0e;}
-  .btn-primary:active{background:var(--peach-dim);}
-  .btn-secondary{background:var(--bg-elev2);color:var(--text);}
-  .btn-danger{background:rgba(232,119,108,.15);color:var(--alert);}
+      section h2 {
+        font-family: "Rubik", sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 10px 2px;
+        color: var(--text-dim);
+      }
+      .quick-add {
+        margin-bottom: 26px;
+      }
+      .preset-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .preset-btn {
+        background: var(--bg-elev);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        border-radius: var(--radius-md);
+        padding: 14px 4px;
+        font-family: "Rubik", sans-serif;
+        font-weight: 700;
+        font-size: 17px;
+        cursor: pointer;
+        transition:
+          transform 0.08s ease,
+          background 0.15s ease;
+      }
+      .preset-btn:active {
+        transform: scale(0.95);
+        background: var(--bg-elev2);
+      }
+      .preset-btn span {
+        display: block;
+        font-family: "Heebo", sans-serif;
+        font-weight: 400;
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 2px;
+      }
+      .diaper-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .diaper-btn {
+        padding: 18px 4px;
+        font-size: 26px;
+      }
+      .diaper-btn span {
+        font-size: 12px;
+        margin-top: 6px;
+      }
+      .diaper-btn.pee {
+        box-shadow: inset 0 0 0 1.5px rgba(127, 199, 224, 0.35);
+      }
+      .diaper-btn.poop {
+        box-shadow: inset 0 0 0 1.5px rgba(201, 154, 99, 0.35);
+      }
+      .diaper-btn.both {
+        box-shadow: inset 0 0 0 1.5px rgba(246, 169, 122, 0.35);
+      }
+      .btn-custom {
+        width: 100%;
+        background: none;
+        border: 1.5px dashed var(--peach-dim);
+        color: var(--peach);
+        border-radius: var(--radius-md);
+        padding: 13px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: "Heebo", sans-serif;
+        cursor: pointer;
+      }
+      .btn-custom:active {
+        background: rgba(246, 169, 122, 0.08);
+      }
 
-  .menu-list{display:flex;flex-direction:column;gap:8px;}
-  .menu-item{
-    display:flex;align-items:center;gap:12px;
-    background:var(--bg-elev2);border:none;color:var(--text);
-    border-radius:var(--radius-md);padding:14px 16px;font-size:14px;
-    font-family:'Heebo',sans-serif;cursor:pointer;text-align:right;width:100%;
-  }
-  .menu-item.danger{color:var(--alert);}
-  input[type=file]{display:none;}
+      .history {
+        margin-bottom: 10px;
+      }
+      .day-group {
+        margin-bottom: 16px;
+      }
+      .day-title {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--text-dim);
+        margin: 0 0 6px 4px;
+        font-weight: 600;
+      }
+      .day-title .day-counts {
+        font-size: 11px;
+        color: var(--text-dim);
+      }
+      .feed-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--bg-elev);
+        border-radius: var(--radius-md);
+        padding: 11px 14px;
+        margin-bottom: 8px;
+        cursor: pointer;
+      }
+      .feed-row:active {
+        background: var(--bg-elev2);
+      }
+      .feed-time {
+        font-family: "Rubik", sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        min-width: 48px;
+      }
+      .feed-amount {
+        background: rgba(143, 184, 222, 0.15);
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 9px;
+        border-radius: 20px;
+      }
+      .diaper-tag {
+        font-size: 16px;
+        padding: 4px 9px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .feed-notes {
+        font-size: 12px;
+        color: var(--text-dim);
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .empty-state {
+        text-align: center;
+        color: var(--text-dim);
+        font-size: 13px;
+        padding: 28px 10px;
+        background: var(--bg-elev);
+        border-radius: var(--radius-md);
+      }
 
-  .toast{
-    position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);
-    background:var(--bg-elev2);color:var(--text);padding:12px 18px;border-radius:30px;
-    font-size:13px;display:flex;align-items:center;gap:14px;
-    box-shadow:0 8px 24px rgba(0,0,0,.4);
-    opacity:0;transition:all .25s ease;z-index:60;max-width:90%;
-  }
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  .toast button{background:none;border:none;color:var(--peach);font-weight:700;font-size:13px;cursor:pointer;}
-</style>
-</head>
-<body>
-<div class="app">
-  <header>
-    <h1>👶 מעקב תינוק</h1>
-    <button class="icon-btn" id="menuBtn">⋮</button>
-  </header>
+      /* modal */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(8, 10, 22, 0.72);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 50;
+      }
+      .overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .sheet {
+        background: var(--bg-elev);
+        width: 100%;
+        max-width: 520px;
+        border-radius: 22px 22px 0 0;
+        padding: 20px 18px 26px;
+        transform: translateY(20px);
+        transition: transform 0.25s ease;
+        max-height: 88vh;
+        overflow-y: auto;
+      }
+      .overlay.open .sheet {
+        transform: translateY(0);
+      }
+      .sheet h3 {
+        font-family: "Rubik", sans-serif;
+        font-size: 18px;
+        margin: 0 0 16px;
+      }
+      .field {
+        margin-bottom: 14px;
+      }
+      .field label {
+        display: block;
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-bottom: 6px;
+      }
+      .field input,
+      .field textarea {
+        width: 100%;
+        background: var(--bg-elev2);
+        border: none;
+        color: var(--text);
+        border-radius: var(--radius-sm);
+        padding: 12px 14px;
+        font-size: 15px;
+        font-family: "Heebo", sans-serif;
+      }
+      .field textarea {
+        resize: none;
+        min-height: 60px;
+      }
+      .amount-stepper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .amount-stepper button {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: none;
+        background: var(--bg-elev2);
+        color: var(--text);
+        font-size: 20px;
+        cursor: pointer;
+      }
+      .amount-stepper input {
+        text-align: center;
+        font-family: "Rubik", sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+      }
+      .type-select {
+        display: flex;
+        gap: 8px;
+      }
+      .type-select button {
+        flex: 1;
+        padding: 14px 4px;
+        border-radius: var(--radius-md);
+        border: 1.5px solid transparent;
+        background: var(--bg-elev2);
+        color: var(--text-dim);
+        font-size: 22px;
+        cursor: pointer;
+      }
+      .type-select button span {
+        display: block;
+        font-size: 11px;
+        font-family: "Heebo", sans-serif;
+        margin-top: 4px;
+      }
+      .type-select button.active {
+        border-color: var(--peach);
+        color: var(--text);
+      }
+      .sheet-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+      }
+      .btn {
+        flex: 1;
+        padding: 14px;
+        border-radius: var(--radius-md);
+        border: none;
+        font-family: "Heebo", sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: var(--peach);
+        color: #2a1a0e;
+      }
+      .btn-primary:active {
+        background: var(--peach-dim);
+      }
+      .btn-secondary {
+        background: var(--bg-elev2);
+        color: var(--text);
+      }
+      .btn-danger {
+        background: rgba(232, 119, 108, 0.15);
+        color: var(--alert);
+      }
 
-  <div class="tab-bar">
-    <button class="tab-btn active" id="tabFeedingBtn">🍼 האכלות</button>
-    <button class="tab-btn" id="tabDiaperBtn">🧷 החתלות</button>
-  </div>
+      .menu-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--bg-elev2);
+        border: none;
+        color: var(--text);
+        border-radius: var(--radius-md);
+        padding: 14px 16px;
+        font-size: 14px;
+        font-family: "Heebo", sans-serif;
+        cursor: pointer;
+        text-align: right;
+        width: 100%;
+      }
+      .menu-item.danger {
+        color: var(--alert);
+      }
+      .account-info {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px 14px;
+        border-radius: var(--radius-md);
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-bottom: 8px;
+      }
+      .account-info b {
+        color: var(--peach);
+        word-break: break-all;
+      }
 
-  <!-- ===== FEEDING VIEW ===== -->
-  <div class="view active" id="feedingView">
-    <section class="status-card">
-      <div class="drop" id="statusDrop">
-        <div class="drop-inner">
-          <span class="time-value" id="timeValue">--:--</span>
-          <span class="time-secs" id="timeSecs"></span>
-          <span class="time-label">מאז ההאכלה האחרונה</span>
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: var(--bg-elev2);
+        color: var(--text);
+        padding: 12px 18px;
+        border-radius: 30px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        transition: all 0.25s ease;
+        z-index: 60;
+        max-width: 90%;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- AUTH SCREEN -->
+    <div id="authScreen">
+      <h1>👶 מעקב תינוק</h1>
+      <div class="auth-form">
+        <input
+          type="text"
+          id="authBabyName"
+          placeholder="שם התינוק/ת"
+          style="display: none"
+        />
+        <input type="email" id="authEmail" placeholder="אימייל / מזהה ייחודי" />
+        <input type="password" id="authPassword" placeholder="סיסמה" />
+        <button class="btn btn-primary" id="authActionBtn">התחבר למעקב</button>
+        <button class="auth-toggle" id="authToggleBtn">
+          תינוק חדש? צור חשבון
+        </button>
+      </div>
+    </div>
+
+    <div class="app" id="mainApp" style="display: none">
+      <header>
+        <h1 id="headerTitle">👶 מעקב תינוק</h1>
+        <button class="icon-btn" id="menuBtn">⋮</button>
+      </header>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tabFeedingBtn">🍼 האכלות</button>
+        <button class="tab-btn" id="tabDiaperBtn">🧷 החתלות</button>
+      </div>
+
+      <!-- FEEDING VIEW -->
+      <div class="view active" id="feedingView">
+        <section class="status-card">
+          <div class="drop" id="statusDrop">
+            <div class="drop-inner">
+              <span class="time-value" id="timeValue">--:--</span>
+              <span class="time-secs" id="timeSecs"></span>
+              <span class="time-label">מאז ההאכלה האחרונה</span>
+            </div>
+          </div>
+          <div class="last-feed-meta" id="lastFeedMeta">
+            עדיין לא נרשמה האכלה
+          </div>
+        </section>
+
+        <section class="stats-row" id="statsRow"></section>
+
+        <section class="quick-add">
+          <h2>הוספה מהירה</h2>
+          <div class="preset-grid" id="presetGrid"></div>
+          <button class="btn-custom" id="customBtn">
+            + הוספה מותאמת אישית
+          </button>
+        </section>
+
+        <section class="history">
+          <h2>היסטוריית האכלות</h2>
+          <div id="historyList"></div>
+        </section>
+      </div>
+
+      <!-- DIAPER VIEW -->
+      <div class="view" id="diaperView">
+        <section class="status-card">
+          <div class="drop" id="diaperStatusDrop">
+            <div class="drop-inner">
+              <span class="time-value" id="diaperTimeValue">--:--</span>
+              <span class="time-secs" id="diaperTimeSecs"></span>
+              <span class="time-label">מאז ההחתלה האחרונה</span>
+            </div>
+          </div>
+          <div class="last-feed-meta" id="lastDiaperMeta">
+            עדיין לא נרשמה החתלה
+          </div>
+        </section>
+
+        <section class="stats-row" id="diaperStatsRow"></section>
+
+        <section class="quick-add">
+          <h2>הוספה מהירה</h2>
+          <div class="preset-grid diaper-grid">
+            <button class="preset-btn diaper-btn pee" id="btnPee">
+              💧<span>פיפי</span>
+            </button>
+            <button class="preset-btn diaper-btn poop" id="btnPoop">
+              💩<span>קקי</span>
+            </button>
+            <button class="preset-btn diaper-btn both" id="btnBoth">
+              💧💩<span>שניהם</span>
+            </button>
+          </div>
+          <button class="btn-custom" id="customDiaperBtn">
+            + הוספה מותאמת אישית
+          </button>
+        </section>
+
+        <section class="history">
+          <h2>היסטוריית החתלות</h2>
+          <div id="diaperHistoryList"></div>
+        </section>
+      </div>
+    </div>
+
+    <!-- modal: feeding -->
+    <div class="overlay" id="modalOverlay">
+      <div class="sheet">
+        <h3 id="modalTitle">הוספת האכלה</h3>
+        <div class="field">
+          <label>כמות (מ״ל)</label>
+          <div class="amount-stepper">
+            <button type="button" id="amtMinus">−</button>
+            <input
+              type="number"
+              id="amtInput"
+              value="120"
+              inputmode="numeric"
+            />
+            <button type="button" id="amtPlus">+</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>שעה</label>
+          <input type="datetime-local" id="timeInput" />
+        </div>
+        <div class="field">
+          <label>הערות (אופציונלי)</label>
+          <textarea
+            id="notesInput"
+            placeholder="לדוגמה: פליטה, הקאה קלה..."
+          ></textarea>
+        </div>
+        <div class="sheet-actions">
+          <button class="btn btn-secondary" id="cancelBtn">ביטול</button>
+          <button class="btn btn-primary" id="saveBtn">שמירה</button>
+        </div>
+        <div class="sheet-actions" id="deleteRow" style="display: none">
+          <button class="btn btn-danger" id="deleteBtn">מחיקת האכלה זו</button>
         </div>
       </div>
-      <div class="last-feed-meta" id="lastFeedMeta">עדיין לא נרשמה האכלה</div>
-    </section>
+    </div>
 
-    <section class="stats-row" id="statsRow"></section>
-
-    <section class="quick-add">
-      <h2>הוספה מהירה</h2>
-      <div class="preset-grid" id="presetGrid"></div>
-      <button class="btn-custom" id="customBtn">+ הוספה מותאמת אישית</button>
-    </section>
-
-    <section class="history">
-      <h2>היסטוריית האכלות</h2>
-      <div id="historyList"></div>
-    </section>
-  </div>
-
-  <!-- ===== DIAPER VIEW ===== -->
-  <div class="view" id="diaperView">
-    <section class="status-card">
-      <div class="drop" id="diaperStatusDrop">
-        <div class="drop-inner">
-          <span class="time-value" id="diaperTimeValue">--:--</span>
-          <span class="time-secs" id="diaperTimeSecs"></span>
-          <span class="time-label">מאז ההחתלה האחרונה</span>
+    <!-- modal: diaper -->
+    <div class="overlay" id="diaperModalOverlay">
+      <div class="sheet">
+        <h3 id="diaperModalTitle">הוספת החתלה</h3>
+        <div class="field">
+          <label>סוג</label>
+          <div class="type-select">
+            <button type="button" class="type-btn" data-type="pee">
+              💧<span>פיפי</span>
+            </button>
+            <button type="button" class="type-btn" data-type="poop">
+              💩<span>קקי</span>
+            </button>
+            <button type="button" class="type-btn" data-type="both">
+              💧💩<span>שניהם</span>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label>שעה</label>
+          <input type="datetime-local" id="diaperTimeInput" />
+        </div>
+        <div class="field">
+          <label>הערות (אופציונלי)</label>
+          <textarea
+            id="diaperNotesInput"
+            placeholder="לדוגמה: פריחה, שלשול..."
+          ></textarea>
+        </div>
+        <div class="sheet-actions">
+          <button class="btn btn-secondary" id="diaperCancelBtn">ביטול</button>
+          <button class="btn btn-primary" id="diaperSaveBtn">שמירה</button>
+        </div>
+        <div class="sheet-actions" id="diaperDeleteRow" style="display: none">
+          <button class="btn btn-danger" id="diaperDeleteBtn">
+            מחיקת החתלה זו
+          </button>
         </div>
       </div>
-      <div class="last-feed-meta" id="lastDiaperMeta">עדיין לא נרשמה החתלה</div>
-    </section>
+    </div>
 
-    <section class="stats-row" id="diaperStatsRow"></section>
-
-    <section class="quick-add">
-      <h2>הוספה מהירה</h2>
-      <div class="preset-grid diaper-grid">
-        <button class="preset-btn diaper-btn pee" id="btnPee">💧<span>פיפי</span></button>
-        <button class="preset-btn diaper-btn poop" id="btnPoop">💩<span>קקי</span></button>
-        <button class="preset-btn diaper-btn both" id="btnBoth">💧💩<span>שניהם</span></button>
-      </div>
-      <button class="btn-custom" id="customDiaperBtn">+ הוספה מותאמת אישית</button>
-    </section>
-
-    <section class="history">
-      <h2>היסטוריית החתלות</h2>
-      <div id="diaperHistoryList"></div>
-    </section>
-  </div>
-</div>
-
-<!-- add/edit sheet: feeding -->
-<div class="overlay" id="modalOverlay">
-  <div class="sheet">
-    <h3 id="modalTitle">הוספת האכלה</h3>
-    <div class="field">
-      <label>כמות (מ״ל)</label>
-      <div class="amount-stepper">
-        <button type="button" id="amtMinus">−</button>
-        <input type="number" id="amtInput" value="120" inputmode="numeric">
-        <button type="button" id="amtPlus">+</button>
+    <!-- modal: edit name -->
+    <div class="overlay" id="editNameOverlay">
+      <div class="sheet">
+        <h3>עריכת שם התינוק</h3>
+        <div class="field">
+          <label>שם התינוק/ת</label>
+          <input type="text" id="editNameInput" placeholder="הכנס שם חדש" />
+        </div>
+        <div class="sheet-actions">
+          <button class="btn btn-secondary" id="cancelEditNameBtn">
+            ביטול
+          </button>
+          <button class="btn btn-primary" id="saveEditNameBtn">שמירה</button>
+        </div>
       </div>
     </div>
-    <div class="field">
-      <label>שעה</label>
-      <input type="datetime-local" id="timeInput">
-    </div>
-    <div class="field">
-      <label>הערות (אופציונלי)</label>
-      <textarea id="notesInput" placeholder="לדוגמה: פליטה, הקאה קלה..."></textarea>
-    </div>
-    <div class="sheet-actions">
-      <button class="btn btn-secondary" id="cancelBtn">ביטול</button>
-      <button class="btn btn-primary" id="saveBtn">שמירה</button>
-    </div>
-    <div class="sheet-actions" id="deleteRow" style="display:none;">
-      <button class="btn btn-danger" id="deleteBtn">מחיקת האכלה זו</button>
-    </div>
-  </div>
-</div>
 
-<!-- add/edit sheet: diaper -->
-<div class="overlay" id="diaperModalOverlay">
-  <div class="sheet">
-    <h3 id="diaperModalTitle">הוספת החתלה</h3>
-    <div class="field">
-      <label>סוג</label>
-      <div class="type-select">
-        <button type="button" class="type-btn" data-type="pee">💧<span>פיפי</span></button>
-        <button type="button" class="type-btn" data-type="poop">💩<span>קקי</span></button>
-        <button type="button" class="type-btn" data-type="both">💧💩<span>שניהם</span></button>
+    <!-- menu sheet -->
+    <div class="overlay" id="menuOverlay">
+      <div class="sheet">
+        <h3>הגדרות ונתונים</h3>
+        <div class="account-info">
+          מזהה התחברות ייחודי: <br /><b id="displayUserEmail">--</b>
+        </div>
+        <div class="menu-list">
+          <button class="menu-item" id="editBabyNameBtn">
+            ✏️ עריכת שם התינוק
+          </button>
+          <button class="menu-item" id="exportBtn">
+            ⬇️ ייצוא גיבוי (JSON)
+          </button>
+          <button class="menu-item danger" id="clearBtn">
+            🗑️ מחיקת כל הנתונים
+          </button>
+          <button class="menu-item" id="logoutBtn" style="color: var(--peach)">
+            🚪 התנתקות
+          </button>
+          <button class="menu-item" id="closeMenuBtn">סגירה</button>
+        </div>
       </div>
     </div>
-    <div class="field">
-      <label>שעה</label>
-      <input type="datetime-local" id="diaperTimeInput">
+
+    <div class="toast" id="toast">
+      <span id="toastMsg"></span>
     </div>
-    <div class="field">
-      <label>הערות (אופציונלי)</label>
-      <textarea id="diaperNotesInput" placeholder="לדוגמה: פריחה, שלשול..."></textarea>
-    </div>
-    <div class="sheet-actions">
-      <button class="btn btn-secondary" id="diaperCancelBtn">ביטול</button>
-      <button class="btn btn-primary" id="diaperSaveBtn">שמירה</button>
-    </div>
-    <div class="sheet-actions" id="diaperDeleteRow" style="display:none;">
-      <button class="btn btn-danger" id="diaperDeleteBtn">מחיקת החתלה זו</button>
-    </div>
-  </div>
-</div>
 
-<!-- menu sheet -->
-<div class="overlay" id="menuOverlay">
-  <div class="sheet">
-    <h3>הגדרות ונתונים</h3>
-    <div class="menu-list">
-      <button class="menu-item" id="exportBtn">⬇️ ייצוא גיבוי (JSON)</button>
-      <button class="menu-item" id="importBtn">⬆️ ייבוא גיבוי</button>
-      <input type="file" id="importFile" accept="application/json">
-      <button class="menu-item danger" id="clearBtn">🗑️ מחיקת כל הנתונים</button>
-      <button class="menu-item" id="closeMenuBtn">סגירה</button>
-    </div>
-  </div>
-</div>
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        onSnapshot,
+      } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-<div class="toast" id="toast">
-  <span id="toastMsg"></span>
-  <button id="toastUndo" style="display:none;">בטל</button>
-</div>
+      const firebaseConfig = {
+        apiKey: "AIzaSyASpyxZJtmDkRwSwE5jHvC1N4nXgNqnWAE",
+        authDomain: "baby-tracker-9edbd.firebaseapp.com",
+        projectId: "760800717902",
+        storageBucket: "baby-tracker-9edbd.firebasestorage.app",
+        messagingSenderId: "760800717902",
+        appId: "1:760800717902:web:e28cec5905dae82cff671f",
+      };
 
-<script>
-(function(){
-  "use strict";
-  const STORAGE_KEY = 'babyFeedTrackerData';
-  const DEFAULT_PRESETS = [60,90,120,150,180,210];
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
 
-  function loadData(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw) return JSON.parse(raw);
-    }catch(e){}
-    return {feedings:[], diapers:[], presets: DEFAULT_PRESETS};
-  }
-  let data = loadData();
-  if(!data.presets) data.presets = DEFAULT_PRESETS;
-  if(!data.diapers) data.diapers = [];
-  if(!data.feedings) data.feedings = [];
+      const DEFAULT_PRESETS = [60, 90, 120, 150, 180, 210];
+      let data = {
+        babyName: "תינוק",
+        feedings: [],
+        diapers: [],
+        presets: DEFAULT_PRESETS,
+      };
+      let currentUserId = null;
+      let unsubscribeSnapshot = null;
 
-  function save(){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }
-  function sortByTime(arr){
-    arr.sort((a,b)=>a.timestamp-b.timestamp);
-  }
-  function uid(){
-    return 'id'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
-  }
-  const TYPE_ICON = {pee:'💧', poop:'💩', both:'💧💩'};
-  const TYPE_LABEL = {pee:'פיפי', poop:'קקי', both:'פיפי + קקי'};
+      // AUTH LOGIC
+      const authScreen = document.getElementById("authScreen");
+      const mainApp = document.getElementById("mainApp");
+      const authBabyName = document.getElementById("authBabyName");
+      const authEmail = document.getElementById("authEmail");
+      const authPassword = document.getElementById("authPassword");
+      const authActionBtn = document.getElementById("authActionBtn");
+      const authToggleBtn = document.getElementById("authToggleBtn");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const headerTitle = document.getElementById("headerTitle");
+      const displayUserEmail = document.getElementById("displayUserEmail");
 
-  // ---------- DOM refs: shared ----------
-  const menuBtn = document.getElementById('menuBtn');
-  const tabFeedingBtn = document.getElementById('tabFeedingBtn');
-  const tabDiaperBtn = document.getElementById('tabDiaperBtn');
-  const feedingView = document.getElementById('feedingView');
-  const diaperView = document.getElementById('diaperView');
+      let isLoginMode = true;
 
-  const toast = document.getElementById('toast');
-  const toastMsg = document.getElementById('toastMsg');
-  const toastUndo = document.getElementById('toastUndo');
+      authToggleBtn.addEventListener("click", () => {
+        isLoginMode = !isLoginMode;
+        authBabyName.style.display = isLoginMode ? "none" : "block";
+        authActionBtn.textContent = isLoginMode
+          ? "התחבר למעקב"
+          : "צור חשבון חדש";
+        authToggleBtn.textContent = isLoginMode
+          ? "תינוק חדש? צור חשבון"
+          : "יש לך כבר חשבון? התחבר";
+      });
 
-  // ---------- DOM refs: feeding ----------
-  const timeValue = document.getElementById('timeValue');
-  const timeSecs = document.getElementById('timeSecs');
-  const lastFeedMeta = document.getElementById('lastFeedMeta');
-  const statusDrop = document.getElementById('statusDrop');
-  const statsRow = document.getElementById('statsRow');
-  const presetGrid = document.getElementById('presetGrid');
-  const historyList = document.getElementById('historyList');
-  const customBtn = document.getElementById('customBtn');
+      authActionBtn.addEventListener("click", async () => {
+        const email = authEmail.value.trim();
+        const password = authPassword.value;
+        const babyName = authBabyName.value.trim() || "תינוק";
 
-  const modalOverlay = document.getElementById('modalOverlay');
-  const modalTitle = document.getElementById('modalTitle');
-  const amtInput = document.getElementById('amtInput');
-  const timeInput = document.getElementById('timeInput');
-  const notesInput = document.getElementById('notesInput');
-  const saveBtn = document.getElementById('saveBtn');
-  const cancelBtn = document.getElementById('cancelBtn');
-  const deleteRow = document.getElementById('deleteRow');
-  const deleteBtn = document.getElementById('deleteBtn');
+        if (!email || !password) return alert("נא להזין אימייל/מזהה וסיסמה");
 
-  // ---------- DOM refs: diaper ----------
-  const diaperTimeValue = document.getElementById('diaperTimeValue');
-  const diaperTimeSecs = document.getElementById('diaperTimeSecs');
-  const lastDiaperMeta = document.getElementById('lastDiaperMeta');
-  const diaperStatusDrop = document.getElementById('diaperStatusDrop');
-  const diaperStatsRow = document.getElementById('diaperStatsRow');
-  const diaperHistoryList = document.getElementById('diaperHistoryList');
-  const btnPee = document.getElementById('btnPee');
-  const btnPoop = document.getElementById('btnPoop');
-  const btnBoth = document.getElementById('btnBoth');
-  const customDiaperBtn = document.getElementById('customDiaperBtn');
+        try {
+          if (isLoginMode) {
+            await signInWithEmailAndPassword(auth, email, password);
+          } else {
+            const res = await createUserWithEmailAndPassword(
+              auth,
+              email,
+              password,
+            );
+            // יצירת המסמך הראשוני בענן
+            data = {
+              babyName,
+              feedings: [],
+              diapers: [],
+              presets: DEFAULT_PRESETS,
+            };
+            await setDoc(doc(db, "babies", res.user.uid), data);
+          }
+        } catch (error) {
+          if (error.code === "auth/email-already-in-use") {
+            alert("המזהה/אימייל הזה כבר תפוס! אנא התחבר אליו או בחר מזהה אחר.");
+          } else {
+            alert("שגיאה: " + error.message);
+          }
+        }
+      });
 
-  const diaperModalOverlay = document.getElementById('diaperModalOverlay');
-  const diaperModalTitle = document.getElementById('diaperModalTitle');
-  const diaperTimeInput = document.getElementById('diaperTimeInput');
-  const diaperNotesInput = document.getElementById('diaperNotesInput');
-  const diaperSaveBtn = document.getElementById('diaperSaveBtn');
-  const diaperCancelBtn = document.getElementById('diaperCancelBtn');
-  const diaperDeleteRow = document.getElementById('diaperDeleteRow');
-  const diaperDeleteBtn = document.getElementById('diaperDeleteBtn');
-  const typeButtons = Array.from(document.querySelectorAll('.type-btn'));
+      logoutBtn.addEventListener("click", () => {
+        signOut(auth);
+        menuOverlay.classList.remove("open");
+      });
 
-  // ---------- DOM refs: menu ----------
-  const menuOverlay = document.getElementById('menuOverlay');
-  const exportBtn = document.getElementById('exportBtn');
-  const importBtn = document.getElementById('importBtn');
-  const importFile = document.getElementById('importFile');
-  const clearBtn = document.getElementById('clearBtn');
-  const closeMenuBtn = document.getElementById('closeMenuBtn');
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUserId = user.uid;
+          displayUserEmail.textContent = user.email;
+          authScreen.style.display = "none";
+          mainApp.style.display = "block";
+          listenToBabyData(user.uid);
+        } else {
+          currentUserId = null;
+          if (unsubscribeSnapshot) unsubscribeSnapshot();
+          authScreen.style.display = "flex";
+          mainApp.style.display = "none";
+        }
+      });
 
-  let editingId = null;
-  let editingDiaperId = null;
-  let selectedType = 'pee';
-  let toastTimer = null;
+      // FIREBASE SYNC
+      function listenToBabyData(uid) {
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
 
-  // ---------- helpers ----------
-  function pad(n){return String(n).padStart(2,'0');}
-  function fmtHM(ts){
-    const d = new Date(ts);
-    return pad(d.getHours())+':'+pad(d.getMinutes());
-  }
-  function dateKey(ts){
-    const d = new Date(ts);
-    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
-  }
-  function dayLabel(ts){
-    const today = dateKey(Date.now());
-    const yestTs = Date.now() - 86400000;
-    const yesterday = dateKey(yestTs);
-    const key = dateKey(ts);
-    if(key === today) return 'היום';
-    if(key === yesterday) return 'אתמול';
-    const d = new Date(ts);
-    return d.toLocaleDateString('he-IL', {day:'numeric', month:'long'});
-  }
-  function toLocalInputValue(ts){
-    const d = new Date(ts);
-    const off = d.getTimezoneOffset();
-    const local = new Date(d.getTime() - off*60000);
-    return local.toISOString().slice(0,16);
-  }
-  function elapsedParts(ts){
-    const diffMs = Date.now() - ts;
-    const totalSec = Math.max(0, Math.floor(diffMs/1000));
-    const h = Math.floor(totalSec/3600);
-    const m = Math.floor((totalSec%3600)/60);
-    const s = totalSec%60;
-    return {h,m,s,diffMs};
-  }
+        unsubscribeSnapshot = onSnapshot(doc(db, "babies", uid), (docSnap) => {
+          if (docSnap.exists()) {
+            data = docSnap.data();
+            if (!data.presets) data.presets = DEFAULT_PRESETS;
+            if (!data.diapers) data.diapers = [];
+            if (!data.feedings) data.feedings = [];
+            if (!data.babyName) data.babyName = "תינוק";
+          } else {
+            data = {
+              babyName: "תינוק",
+              feedings: [],
+              diapers: [],
+              presets: DEFAULT_PRESETS,
+            };
+            save();
+          }
+          headerTitle.textContent = `👶 מעקב - ${data.babyName}`;
+          renderPresets();
+          renderFeeding();
+          renderDiaper();
+        });
+      }
 
-  // ---------- tabs ----------
-  function setTab(tab){
-    if(tab==='feeding'){
-      feedingView.classList.add('active');
-      diaperView.classList.remove('active');
-      tabFeedingBtn.classList.add('active');
-      tabDiaperBtn.classList.remove('active');
-    } else {
-      diaperView.classList.add('active');
-      feedingView.classList.remove('active');
-      tabDiaperBtn.classList.add('active');
-      tabFeedingBtn.classList.remove('active');
-    }
-  }
-  tabFeedingBtn.addEventListener('click', ()=> setTab('feeding'));
-  tabDiaperBtn.addEventListener('click', ()=> setTab('diaper'));
+      async function save() {
+        if (!currentUserId) return;
+        try {
+          await setDoc(doc(db, "babies", currentUserId), data);
+        } catch (e) {
+          console.error("Error saving document: ", e);
+          showToast("שגיאה בשמירה בענן");
+        }
+      }
 
-  // ================= FEEDING =================
-  function renderPresets(){
-    presetGrid.innerHTML = '';
-    data.presets.forEach(amt=>{
-      const btn = document.createElement('button');
-      btn.className = 'preset-btn';
-      btn.innerHTML = amt + '<span>מ״ל</span>';
-      btn.addEventListener('click', ()=> quickAddFeeding(amt));
-      presetGrid.appendChild(btn);
-    });
-  }
+      // EDIT BABY NAME
+      const editBabyNameBtn = document.getElementById("editBabyNameBtn");
+      const editNameOverlay = document.getElementById("editNameOverlay");
+      const editNameInput = document.getElementById("editNameInput");
+      const saveEditNameBtn = document.getElementById("saveEditNameBtn");
+      const cancelEditNameBtn = document.getElementById("cancelEditNameBtn");
 
-  function quickAddFeeding(amount){
-    const entry = {id: uid(), amount, timestamp: Date.now(), notes:''};
-    data.feedings.push(entry);
-    sortByTime(data.feedings);
-    save();
-    renderFeeding();
-    showToast('נרשמה האכלה של '+amount+' מ״ל', ()=>{
-      data.feedings = data.feedings.filter(f=>f.id!==entry.id);
-      save(); renderFeeding();
-    });
-  }
+      editBabyNameBtn.addEventListener("click", () => {
+        editNameInput.value = data.babyName || "";
+        menuOverlay.classList.remove("open");
+        editNameOverlay.classList.add("open");
+      });
 
-  function renderFeedingStatus(){
-    sortByTime(data.feedings);
-    const last = data.feedings[data.feedings.length-1];
-    if(!last){
-      timeValue.textContent = '—';
-      timeSecs.textContent = '';
-      lastFeedMeta.textContent = 'עדיין לא נרשמה האכלה';
-      statusDrop.style.setProperty('--status-a', '#3a4070');
-      statusDrop.style.setProperty('--status-b', '#2a2f5c');
-      return;
-    }
-    const {h,m,s,diffMs} = elapsedParts(last.timestamp);
-    timeValue.textContent = h>0 ? (h+':'+pad(m)) : (pad(m)+':'+pad(s));
-    timeSecs.textContent = h>0 ? (pad(s)+' שנ׳') : '';
-    lastFeedMeta.innerHTML = 'האכלה אחרונה: <b>'+fmtHM(last.timestamp)+'</b> · <b>'+last.amount+' מ״ל</b>';
+      cancelEditNameBtn.addEventListener("click", () =>
+        editNameOverlay.classList.remove("open"),
+      );
 
-    const hours = diffMs/3600000;
-    let a='#8fd6a8', b='#6fc98f';
-    if(hours>=3.5){ a='#e8776c'; b='#c95a51'; }
-    else if(hours>=2){ a='#f4c77a'; b='#e0ab52'; }
-    statusDrop.style.setProperty('--status-a', a);
-    statusDrop.style.setProperty('--status-b', b);
-  }
+      saveEditNameBtn.addEventListener("click", () => {
+        const newName = editNameInput.value.trim();
+        if (newName) {
+          data.babyName = newName;
+          save();
+          headerTitle.textContent = `👶 מעקב - ${newName}`;
+          showToast("שם התינוק עודכן");
+        }
+        editNameOverlay.classList.remove("open");
+      });
 
-  function renderFeedingStats(){
-    const today = dateKey(Date.now());
-    const todays = data.feedings.filter(f=>dateKey(f.timestamp)===today);
-    const total = todays.reduce((s,f)=>s+Number(f.amount),0);
-    let avgLabel = '—';
-    if(todays.length>=2){
-      const sorted = todays.slice().sort((a,b)=>a.timestamp-b.timestamp);
-      let gaps=0, sum=0;
-      for(let i=1;i<sorted.length;i++){ sum += sorted[i].timestamp - sorted[i-1].timestamp; gaps++; }
-      const avgMs = sum/gaps;
-      const ah = Math.floor(avgMs/3600000);
-      const am = Math.round((avgMs%3600000)/60000);
-      avgLabel = ah+'ש '+am+'ד';
-    }
-    statsRow.innerHTML = `
+      // CORE LOGIC & HELPERS
+      function sortByTime(arr) {
+        arr.sort((a, b) => a.timestamp - b.timestamp);
+      }
+      function uid() {
+        return "id" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+      }
+      const TYPE_ICON = { pee: "💧", poop: "💩", both: "💧💩" };
+      const TYPE_LABEL = { pee: "פיפי", poop: "קקי", both: "פיפי + קקי" };
+
+      // DOM refs: shared
+      const menuBtn = document.getElementById("menuBtn");
+      const tabFeedingBtn = document.getElementById("tabFeedingBtn");
+      const tabDiaperBtn = document.getElementById("tabDiaperBtn");
+      const feedingView = document.getElementById("feedingView");
+      const diaperView = document.getElementById("diaperView");
+      const toast = document.getElementById("toast");
+      const toastMsg = document.getElementById("toastMsg");
+
+      // DOM refs: feeding
+      const timeValue = document.getElementById("timeValue");
+      const timeSecs = document.getElementById("timeSecs");
+      const lastFeedMeta = document.getElementById("lastFeedMeta");
+      const statusDrop = document.getElementById("statusDrop");
+      const statsRow = document.getElementById("statsRow");
+      const presetGrid = document.getElementById("presetGrid");
+      const historyList = document.getElementById("historyList");
+      const customBtn = document.getElementById("customBtn");
+
+      const modalOverlay = document.getElementById("modalOverlay");
+      const modalTitle = document.getElementById("modalTitle");
+      const amtInput = document.getElementById("amtInput");
+      const timeInput = document.getElementById("timeInput");
+      const notesInput = document.getElementById("notesInput");
+      const saveBtn = document.getElementById("saveBtn");
+      const cancelBtn = document.getElementById("cancelBtn");
+      const deleteRow = document.getElementById("deleteRow");
+      const deleteBtn = document.getElementById("deleteBtn");
+
+      // DOM refs: diaper
+      const diaperTimeValue = document.getElementById("diaperTimeValue");
+      const diaperTimeSecs = document.getElementById("diaperTimeSecs");
+      const lastDiaperMeta = document.getElementById("lastDiaperMeta");
+      const diaperStatusDrop = document.getElementById("diaperStatusDrop");
+      const diaperStatsRow = document.getElementById("diaperStatsRow");
+      const diaperHistoryList = document.getElementById("diaperHistoryList");
+      const btnPee = document.getElementById("btnPee");
+      const btnPoop = document.getElementById("btnPoop");
+      const btnBoth = document.getElementById("btnBoth");
+      const customDiaperBtn = document.getElementById("customDiaperBtn");
+
+      const diaperModalOverlay = document.getElementById("diaperModalOverlay");
+      const diaperModalTitle = document.getElementById("diaperModalTitle");
+      const diaperTimeInput = document.getElementById("diaperTimeInput");
+      const diaperNotesInput = document.getElementById("diaperNotesInput");
+      const diaperSaveBtn = document.getElementById("diaperSaveBtn");
+      const diaperCancelBtn = document.getElementById("diaperCancelBtn");
+      const diaperDeleteRow = document.getElementById("diaperDeleteRow");
+      const diaperDeleteBtn = document.getElementById("diaperDeleteBtn");
+      const typeButtons = Array.from(document.querySelectorAll(".type-btn"));
+
+      // DOM refs: menu
+      const menuOverlay = document.getElementById("menuOverlay");
+      const exportBtn = document.getElementById("exportBtn");
+      const clearBtn = document.getElementById("clearBtn");
+      const closeMenuBtn = document.getElementById("closeMenuBtn");
+
+      let editingId = null;
+      let editingDiaperId = null;
+      let selectedType = "pee";
+      let toastTimer = null;
+
+      // helpers
+      function pad(n) {
+        return String(n).padStart(2, "0");
+      }
+      function fmtHM(ts) {
+        const d = new Date(ts);
+        return pad(d.getHours()) + ":" + pad(d.getMinutes());
+      }
+      function dateKey(ts) {
+        const d = new Date(ts);
+        return (
+          d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate())
+        );
+      }
+      function dayLabel(ts) {
+        const today = dateKey(Date.now());
+        const yestTs = Date.now() - 86400000;
+        const yesterday = dateKey(yestTs);
+        const key = dateKey(ts);
+        if (key === today) return "היום";
+        if (key === yesterday) return "אתמול";
+        const d = new Date(ts);
+        return d.toLocaleDateString("he-IL", { day: "numeric", month: "long" });
+      }
+      function toLocalInputValue(ts) {
+        const d = new Date(ts);
+        const off = d.getTimezoneOffset();
+        const local = new Date(d.getTime() - off * 60000);
+        return local.toISOString().slice(0, 16);
+      }
+      function elapsedParts(ts) {
+        const diffMs = Date.now() - ts;
+        const totalSec = Math.max(0, Math.floor(diffMs / 1000));
+        const h = Math.floor(totalSec / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        return { h, m, s, diffMs };
+      }
+
+      // tabs
+      function setTab(tab) {
+        if (tab === "feeding") {
+          feedingView.classList.add("active");
+          diaperView.classList.remove("active");
+          tabFeedingBtn.classList.add("active");
+          tabDiaperBtn.classList.remove("active");
+        } else {
+          diaperView.classList.add("active");
+          feedingView.classList.remove("active");
+          tabDiaperBtn.classList.add("active");
+          tabFeedingBtn.classList.remove("active");
+        }
+      }
+      tabFeedingBtn.addEventListener("click", () => setTab("feeding"));
+      tabDiaperBtn.addEventListener("click", () => setTab("diaper"));
+
+      // FEEDING
+      function renderPresets() {
+        presetGrid.innerHTML = "";
+        data.presets.forEach((amt) => {
+          const btn = document.createElement("button");
+          btn.className = "preset-btn";
+          btn.innerHTML = amt + "<span>מ״ל</span>";
+          btn.addEventListener("click", () => quickAddFeeding(amt));
+          presetGrid.appendChild(btn);
+        });
+      }
+
+      function quickAddFeeding(amount) {
+        const entry = { id: uid(), amount, timestamp: Date.now(), notes: "" };
+        data.feedings.push(entry);
+        sortByTime(data.feedings);
+        save();
+        showToast("נרשמה האכלה של " + amount + " מ״ל");
+      }
+
+      function renderFeedingStatus() {
+        if (!data.feedings) return;
+        sortByTime(data.feedings);
+        const last = data.feedings[data.feedings.length - 1];
+        if (!last) {
+          timeValue.textContent = "—";
+          timeSecs.textContent = "";
+          lastFeedMeta.textContent = "עדיין לא נרשמה האכלה";
+          statusDrop.style.setProperty("--status-a", "#3a4070");
+          statusDrop.style.setProperty("--status-b", "#2a2f5c");
+          return;
+        }
+        const { h, m, s, diffMs } = elapsedParts(last.timestamp);
+        timeValue.textContent =
+          h > 0 ? h + ":" + pad(m) : pad(m) + ":" + pad(s);
+        timeSecs.textContent = h > 0 ? pad(s) + " שנ׳" : "";
+        lastFeedMeta.innerHTML =
+          "האכלה אחרונה: <b>" +
+          fmtHM(last.timestamp) +
+          "</b> · <b>" +
+          last.amount +
+          " מ״ל</b>";
+
+        const hours = diffMs / 3600000;
+        let a = "#8fd6a8",
+          b = "#6fc98f";
+        if (hours >= 3.5) {
+          a = "#e8776c";
+          b = "#c95a51";
+        } else if (hours >= 2) {
+          a = "#f4c77a";
+          b = "#e0ab52";
+        }
+        statusDrop.style.setProperty("--status-a", a);
+        statusDrop.style.setProperty("--status-b", b);
+      }
+
+      function renderFeedingStats() {
+        const today = dateKey(Date.now());
+        const todays = data.feedings.filter(
+          (f) => dateKey(f.timestamp) === today,
+        );
+        const total = todays.reduce((s, f) => s + Number(f.amount), 0);
+        let avgLabel = "—";
+        if (todays.length >= 2) {
+          const sorted = todays
+            .slice()
+            .sort((a, b) => a.timestamp - b.timestamp);
+          let gaps = 0,
+            sum = 0;
+          for (let i = 1; i < sorted.length; i++) {
+            sum += sorted[i].timestamp - sorted[i - 1].timestamp;
+            gaps++;
+          }
+          const avgMs = sum / gaps;
+          const ah = Math.floor(avgMs / 3600000);
+          const am = Math.round((avgMs % 3600000) / 60000);
+          avgLabel = ah + "ש " + am + "ד";
+        }
+        statsRow.innerHTML = `
       <div class="stat-card"><div class="val">${total}</div><div class="lbl">מ״ל היום</div></div>
       <div class="stat-card"><div class="val">${todays.length}</div><div class="lbl">האכלות היום</div></div>
       <div class="stat-card"><div class="val">${avgLabel}</div><div class="lbl">מרווח ממוצע</div></div>
     `;
-  }
+      }
 
-  function renderFeedingHistory(){
-    historyList.innerHTML = '';
-    if(data.feedings.length===0){
-      historyList.innerHTML = '<div class="empty-state">כשתוסיפו האכלה, היא תופיע כאן</div>';
-      return;
-    }
-    const groups = {};
-    const order = [];
-    data.feedings.slice().sort((a,b)=>b.timestamp-a.timestamp).forEach(f=>{
-      const key = dateKey(f.timestamp);
-      if(!groups[key]){ groups[key]=[]; order.push(key); }
-      groups[key].push(f);
-    });
-    order.forEach(key=>{
-      const wrap = document.createElement('div');
-      wrap.className='day-group';
-      const dayTotal = groups[key].reduce((s,f)=>s+Number(f.amount),0);
-      const title = document.createElement('div');
-      title.className='day-title';
-      title.innerHTML = `<span>${dayLabel(groups[key][0].timestamp)}</span><span class="day-counts">${groups[key].length} האכלות · ${dayTotal} מ״ל</span>`;
-      wrap.appendChild(title);
-      groups[key].forEach(f=>{
-        const row = document.createElement('div');
-        row.className='feed-row';
-        row.innerHTML = `
+      function renderFeedingHistory() {
+        historyList.innerHTML = "";
+        if (data.feedings.length === 0) {
+          historyList.innerHTML =
+            '<div class="empty-state">כשתוסיפו האכלה, היא תופיע כאן</div>';
+          return;
+        }
+        const groups = {};
+        const order = [];
+        data.feedings
+          .slice()
+          .sort((a, b) => b.timestamp - a.timestamp)
+          .forEach((f) => {
+            const key = dateKey(f.timestamp);
+            if (!groups[key]) {
+              groups[key] = [];
+              order.push(key);
+            }
+            groups[key].push(f);
+          });
+        order.forEach((key) => {
+          const wrap = document.createElement("div");
+          wrap.className = "day-group";
+          const dayTotal = groups[key].reduce(
+            (s, f) => s + Number(f.amount),
+            0,
+          );
+          const title = document.createElement("div");
+          title.className = "day-title";
+          title.innerHTML = `<span>${dayLabel(groups[key][0].timestamp)}</span><span class="day-counts">${groups[key].length} האכלות · ${dayTotal} מ״ל</span>`;
+          wrap.appendChild(title);
+          groups[key].forEach((f) => {
+            const row = document.createElement("div");
+            row.className = "feed-row";
+            row.innerHTML = `
           <span class="feed-time">${fmtHM(f.timestamp)}</span>
           <span class="feed-amount">${f.amount} מ״ל</span>
-          <span class="feed-notes">${f.notes ? f.notes : ''}</span>
+          <span class="feed-notes">${f.notes ? f.notes : ""}</span>
         `;
-        row.addEventListener('click', ()=> openEditFeeding(f.id));
-        wrap.appendChild(row);
+            row.addEventListener("click", () => openEditFeeding(f.id));
+            wrap.appendChild(row);
+          });
+          historyList.appendChild(wrap);
+        });
+      }
+
+      function renderFeeding() {
+        renderFeedingStatus();
+        renderFeedingStats();
+        renderFeedingHistory();
+      }
+
+      function openAddFeeding() {
+        editingId = null;
+        modalTitle.textContent = "הוספת האכלה";
+        amtInput.value = 120;
+        timeInput.value = toLocalInputValue(Date.now());
+        notesInput.value = "";
+        deleteRow.style.display = "none";
+        modalOverlay.classList.add("open");
+      }
+      function openEditFeeding(id) {
+        const f = data.feedings.find((x) => x.id === id);
+        if (!f) return;
+        editingId = id;
+        modalTitle.textContent = "עריכת האכלה";
+        amtInput.value = f.amount;
+        timeInput.value = toLocalInputValue(f.timestamp);
+        notesInput.value = f.notes || "";
+        deleteRow.style.display = "flex";
+        modalOverlay.classList.add("open");
+      }
+      function closeModal() {
+        modalOverlay.classList.remove("open");
+      }
+
+      document.getElementById("amtMinus").addEventListener("click", () => {
+        amtInput.value = Math.max(0, Number(amtInput.value || 0) - 10);
       });
-      historyList.appendChild(wrap);
-    });
-  }
+      document.getElementById("amtPlus").addEventListener("click", () => {
+        amtInput.value = Number(amtInput.value || 0) + 10;
+      });
 
-  function renderFeeding(){
-    renderFeedingStatus();
-    renderFeedingStats();
-    renderFeedingHistory();
-  }
+      saveBtn.addEventListener("click", () => {
+        const amount = Number(amtInput.value);
+        if (!amount || amount <= 0) {
+          amtInput.focus();
+          return;
+        }
+        const ts = timeInput.value
+          ? new Date(timeInput.value).getTime()
+          : Date.now();
+        const notes = notesInput.value.trim();
+        if (editingId) {
+          const f = data.feedings.find((x) => x.id === editingId);
+          if (f) {
+            f.amount = amount;
+            f.timestamp = ts;
+            f.notes = notes;
+          }
+        } else {
+          data.feedings.push({ id: uid(), amount, timestamp: ts, notes });
+        }
+        sortByTime(data.feedings);
+        save();
+        closeModal();
+        showToast("ההאכלה נשמרה");
+      });
+      cancelBtn.addEventListener("click", closeModal);
+      deleteBtn.addEventListener("click", () => {
+        if (editingId) {
+          data.feedings = data.feedings.filter((x) => x.id !== editingId);
+          save();
+        }
+        closeModal();
+        showToast("ההאכלה נמחקה");
+      });
+      modalOverlay.addEventListener("click", (e) => {
+        if (e.target === modalOverlay) closeModal();
+      });
+      customBtn.addEventListener("click", openAddFeeding);
 
-  function openAddFeeding(){
-    editingId = null;
-    modalTitle.textContent = 'הוספת האכלה';
-    amtInput.value = 120;
-    timeInput.value = toLocalInputValue(Date.now());
-    notesInput.value = '';
-    deleteRow.style.display = 'none';
-    modalOverlay.classList.add('open');
-  }
-  function openEditFeeding(id){
-    const f = data.feedings.find(x=>x.id===id);
-    if(!f) return;
-    editingId = id;
-    modalTitle.textContent = 'עריכת האכלה';
-    amtInput.value = f.amount;
-    timeInput.value = toLocalInputValue(f.timestamp);
-    notesInput.value = f.notes || '';
-    deleteRow.style.display = 'flex';
-    modalOverlay.classList.add('open');
-  }
-  function closeModal(){ modalOverlay.classList.remove('open'); }
+      // DIAPER
+      function quickAddDiaper(type) {
+        const entry = { id: uid(), type, timestamp: Date.now(), notes: "" };
+        data.diapers.push(entry);
+        sortByTime(data.diapers);
+        save();
+        showToast("נרשמה החתלה: " + TYPE_LABEL[type]);
+      }
+      btnPee.addEventListener("click", () => quickAddDiaper("pee"));
+      btnPoop.addEventListener("click", () => quickAddDiaper("poop"));
+      btnBoth.addEventListener("click", () => quickAddDiaper("both"));
 
-  document.getElementById('amtMinus').addEventListener('click', ()=>{
-    amtInput.value = Math.max(0, Number(amtInput.value||0) - 10);
-  });
-  document.getElementById('amtPlus').addEventListener('click', ()=>{
-    amtInput.value = Number(amtInput.value||0) + 10;
-  });
-  saveBtn.addEventListener('click', ()=>{
-    const amount = Number(amtInput.value);
-    if(!amount || amount<=0){ amtInput.focus(); return; }
-    const ts = timeInput.value ? new Date(timeInput.value).getTime() : Date.now();
-    const notes = notesInput.value.trim();
-    if(editingId){
-      const f = data.feedings.find(x=>x.id===editingId);
-      if(f){ f.amount=amount; f.timestamp=ts; f.notes=notes; }
-    } else {
-      data.feedings.push({id:uid(), amount, timestamp:ts, notes});
-    }
-    sortByTime(data.feedings);
-    save();
-    renderFeeding();
-    closeModal();
-    showToast('ההאכלה נשמרה');
-  });
-  cancelBtn.addEventListener('click', closeModal);
-  deleteBtn.addEventListener('click', ()=>{
-    if(editingId){
-      data.feedings = data.feedings.filter(x=>x.id!==editingId);
-      save();
-      renderFeeding();
-    }
-    closeModal();
-    showToast('ההאכלה נמחקה');
-  });
-  modalOverlay.addEventListener('click', e=>{ if(e.target===modalOverlay) closeModal(); });
-  customBtn.addEventListener('click', openAddFeeding);
+      function renderDiaperStatus() {
+        if (!data.diapers) return;
+        sortByTime(data.diapers);
+        const last = data.diapers[data.diapers.length - 1];
+        if (!last) {
+          diaperTimeValue.textContent = "—";
+          diaperTimeSecs.textContent = "";
+          lastDiaperMeta.textContent = "עדיין לא נרשמה החתלה";
+          diaperStatusDrop.style.setProperty("--status-a", "#3a4070");
+          diaperStatusDrop.style.setProperty("--status-b", "#2a2f5c");
+          return;
+        }
+        const { h, m, s, diffMs } = elapsedParts(last.timestamp);
+        diaperTimeValue.textContent =
+          h > 0 ? h + ":" + pad(m) : pad(m) + ":" + pad(s);
+        diaperTimeSecs.textContent = h > 0 ? pad(s) + " שנ׳" : "";
+        lastDiaperMeta.innerHTML =
+          "החתלה אחרונה: <b>" +
+          fmtHM(last.timestamp) +
+          "</b> · <b>" +
+          TYPE_ICON[last.type] +
+          " " +
+          TYPE_LABEL[last.type] +
+          "</b>";
 
-  // ================= DIAPER =================
-  function quickAddDiaper(type){
-    const entry = {id: uid(), type, timestamp: Date.now(), notes:''};
-    data.diapers.push(entry);
-    sortByTime(data.diapers);
-    save();
-    renderDiaper();
-    showToast('נרשמה החתלה: '+TYPE_LABEL[type], ()=>{
-      data.diapers = data.diapers.filter(f=>f.id!==entry.id);
-      save(); renderDiaper();
-    });
-  }
-  btnPee.addEventListener('click', ()=> quickAddDiaper('pee'));
-  btnPoop.addEventListener('click', ()=> quickAddDiaper('poop'));
-  btnBoth.addEventListener('click', ()=> quickAddDiaper('both'));
+        const hours = diffMs / 3600000;
+        let a = "#8fd6a8",
+          b = "#6fc98f";
+        if (hours >= 4) {
+          a = "#e8776c";
+          b = "#c95a51";
+        } else if (hours >= 2.5) {
+          a = "#f4c77a";
+          b = "#e0ab52";
+        }
+        diaperStatusDrop.style.setProperty("--status-a", a);
+        diaperStatusDrop.style.setProperty("--status-b", b);
+      }
 
-  function renderDiaperStatus(){
-    sortByTime(data.diapers);
-    const last = data.diapers[data.diapers.length-1];
-    if(!last){
-      diaperTimeValue.textContent = '—';
-      diaperTimeSecs.textContent = '';
-      lastDiaperMeta.textContent = 'עדיין לא נרשמה החתלה';
-      diaperStatusDrop.style.setProperty('--status-a', '#3a4070');
-      diaperStatusDrop.style.setProperty('--status-b', '#2a2f5c');
-      return;
-    }
-    const {h,m,s,diffMs} = elapsedParts(last.timestamp);
-    diaperTimeValue.textContent = h>0 ? (h+':'+pad(m)) : (pad(m)+':'+pad(s));
-    diaperTimeSecs.textContent = h>0 ? (pad(s)+' שנ׳') : '';
-    lastDiaperMeta.innerHTML = 'החתלה אחרונה: <b>'+fmtHM(last.timestamp)+'</b> · <b>'+TYPE_ICON[last.type]+' '+TYPE_LABEL[last.type]+'</b>';
+      function countTypes(list) {
+        let pee = 0,
+          poop = 0;
+        list.forEach((d) => {
+          if (d.type === "pee") pee++;
+          else if (d.type === "poop") poop++;
+          else if (d.type === "both") {
+            pee++;
+            poop++;
+          }
+        });
+        return { pee, poop };
+      }
 
-    const hours = diffMs/3600000;
-    let a='#8fd6a8', b='#6fc98f';
-    if(hours>=4){ a='#e8776c'; b='#c95a51'; }
-    else if(hours>=2.5){ a='#f4c77a'; b='#e0ab52'; }
-    diaperStatusDrop.style.setProperty('--status-a', a);
-    diaperStatusDrop.style.setProperty('--status-b', b);
-  }
-
-  function countTypes(list){
-    let pee=0, poop=0;
-    list.forEach(d=>{
-      if(d.type==='pee') pee++;
-      else if(d.type==='poop') poop++;
-      else if(d.type==='both'){ pee++; poop++; }
-    });
-    return {pee, poop};
-  }
-
-  function renderDiaperStats(){
-    const today = dateKey(Date.now());
-    const todays = data.diapers.filter(d=>dateKey(d.timestamp)===today);
-    const {pee, poop} = countTypes(todays);
-    diaperStatsRow.innerHTML = `
+      function renderDiaperStats() {
+        const today = dateKey(Date.now());
+        const todays = data.diapers.filter(
+          (d) => dateKey(d.timestamp) === today,
+        );
+        const { pee, poop } = countTypes(todays);
+        diaperStatsRow.innerHTML = `
       <div class="stat-card"><div class="val">💧 ${pee}</div><div class="lbl">פיפי היום</div></div>
       <div class="stat-card"><div class="val">💩 ${poop}</div><div class="lbl">קקי היום</div></div>
       <div class="stat-card"><div class="val">${todays.length}</div><div class="lbl">החתלות היום</div></div>
     `;
-  }
+      }
 
-  function renderDiaperHistory(){
-    diaperHistoryList.innerHTML = '';
-    if(data.diapers.length===0){
-      diaperHistoryList.innerHTML = '<div class="empty-state">כשתוסיפו החתלה, היא תופיע כאן</div>';
-      return;
-    }
-    const groups = {};
-    const order = [];
-    data.diapers.slice().sort((a,b)=>b.timestamp-a.timestamp).forEach(d=>{
-      const key = dateKey(d.timestamp);
-      if(!groups[key]){ groups[key]=[]; order.push(key); }
-      groups[key].push(d);
-    });
-    order.forEach(key=>{
-      const wrap = document.createElement('div');
-      wrap.className='day-group';
-      const {pee, poop} = countTypes(groups[key]);
-      const title = document.createElement('div');
-      title.className='day-title';
-      title.innerHTML = `<span>${dayLabel(groups[key][0].timestamp)}</span><span class="day-counts">💧 ${pee} · 💩 ${poop}</span>`;
-      wrap.appendChild(title);
-      groups[key].forEach(d=>{
-        const row = document.createElement('div');
-        row.className='feed-row';
-        row.innerHTML = `
+      function renderDiaperHistory() {
+        diaperHistoryList.innerHTML = "";
+        if (data.diapers.length === 0) {
+          diaperHistoryList.innerHTML =
+            '<div class="empty-state">כשתוסיפו החתלה, היא תופיע כאן</div>';
+          return;
+        }
+        const groups = {};
+        const order = [];
+        data.diapers
+          .slice()
+          .sort((a, b) => b.timestamp - a.timestamp)
+          .forEach((d) => {
+            const key = dateKey(d.timestamp);
+            if (!groups[key]) {
+              groups[key] = [];
+              order.push(key);
+            }
+            groups[key].push(d);
+          });
+        order.forEach((key) => {
+          const wrap = document.createElement("div");
+          wrap.className = "day-group";
+          const { pee, poop } = countTypes(groups[key]);
+          const title = document.createElement("div");
+          title.className = "day-title";
+          title.innerHTML = `<span>${dayLabel(groups[key][0].timestamp)}</span><span class="day-counts">💧 ${pee} · 💩 ${poop}</span>`;
+          wrap.appendChild(title);
+          groups[key].forEach((d) => {
+            const row = document.createElement("div");
+            row.className = "feed-row";
+            row.innerHTML = `
           <span class="feed-time">${fmtHM(d.timestamp)}</span>
           <span class="diaper-tag">${TYPE_ICON[d.type]}</span>
-          <span class="feed-notes">${d.notes ? d.notes : ''}</span>
+          <span class="feed-notes">${d.notes ? d.notes : ""}</span>
         `;
-        row.addEventListener('click', ()=> openEditDiaper(d.id));
-        wrap.appendChild(row);
+            row.addEventListener("click", () => openEditDiaper(d.id));
+            wrap.appendChild(row);
+          });
+          diaperHistoryList.appendChild(wrap);
+        });
+      }
+
+      function renderDiaper() {
+        renderDiaperStatus();
+        renderDiaperStats();
+        renderDiaperHistory();
+      }
+
+      function setSelectedType(type) {
+        selectedType = type;
+        typeButtons.forEach((b) =>
+          b.classList.toggle("active", b.dataset.type === type),
+        );
+      }
+      typeButtons.forEach((b) =>
+        b.addEventListener("click", () => setSelectedType(b.dataset.type)),
+      );
+
+      function openAddDiaper() {
+        editingDiaperId = null;
+        diaperModalTitle.textContent = "הוספת החתלה";
+        setSelectedType("pee");
+        diaperTimeInput.value = toLocalInputValue(Date.now());
+        diaperNotesInput.value = "";
+        diaperDeleteRow.style.display = "none";
+        diaperModalOverlay.classList.add("open");
+      }
+      function openEditDiaper(id) {
+        const d = data.diapers.find((x) => x.id === id);
+        if (!d) return;
+        editingDiaperId = id;
+        diaperModalTitle.textContent = "עריכת החתלה";
+        setSelectedType(d.type);
+        diaperTimeInput.value = toLocalInputValue(d.timestamp);
+        diaperNotesInput.value = d.notes || "";
+        diaperDeleteRow.style.display = "flex";
+        diaperModalOverlay.classList.add("open");
+      }
+      function closeDiaperModal() {
+        diaperModalOverlay.classList.remove("open");
+      }
+
+      diaperSaveBtn.addEventListener("click", () => {
+        const ts = diaperTimeInput.value
+          ? new Date(diaperTimeInput.value).getTime()
+          : Date.now();
+        const notes = diaperNotesInput.value.trim();
+        if (editingDiaperId) {
+          const d = data.diapers.find((x) => x.id === editingDiaperId);
+          if (d) {
+            d.type = selectedType;
+            d.timestamp = ts;
+            d.notes = notes;
+          }
+        } else {
+          data.diapers.push({
+            id: uid(),
+            type: selectedType,
+            timestamp: ts,
+            notes,
+          });
+        }
+        sortByTime(data.diapers);
+        save();
+        closeDiaperModal();
+        showToast("ההחתלה נשמרה");
       });
-      diaperHistoryList.appendChild(wrap);
-    });
-  }
+      diaperCancelBtn.addEventListener("click", closeDiaperModal);
+      diaperDeleteBtn.addEventListener("click", () => {
+        if (editingDiaperId) {
+          data.diapers = data.diapers.filter((x) => x.id !== editingDiaperId);
+          save();
+        }
+        closeDiaperModal();
+        showToast("ההחתלה נמחקה");
+      });
+      diaperModalOverlay.addEventListener("click", (e) => {
+        if (e.target === diaperModalOverlay) closeDiaperModal();
+      });
+      customDiaperBtn.addEventListener("click", openAddDiaper);
 
-  function renderDiaper(){
-    renderDiaperStatus();
-    renderDiaperStats();
-    renderDiaperHistory();
-  }
+      // MENU
+      menuBtn.addEventListener("click", () =>
+        menuOverlay.classList.add("open"),
+      );
+      closeMenuBtn.addEventListener("click", () =>
+        menuOverlay.classList.remove("open"),
+      );
+      menuOverlay.addEventListener("click", (e) => {
+        if (e.target === menuOverlay) menuOverlay.classList.remove("open");
+      });
 
-  function setSelectedType(type){
-    selectedType = type;
-    typeButtons.forEach(b=> b.classList.toggle('active', b.dataset.type===type));
-  }
-  typeButtons.forEach(b=> b.addEventListener('click', ()=> setSelectedType(b.dataset.type)));
+      exportBtn.addEventListener("click", () => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "גיבוי-תינוק-" + dateKey(Date.now()) + ".json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("הקובץ יוצא בהצלחה");
+      });
 
-  function openAddDiaper(){
-    editingDiaperId = null;
-    diaperModalTitle.textContent = 'הוספת החתלה';
-    setSelectedType('pee');
-    diaperTimeInput.value = toLocalInputValue(Date.now());
-    diaperNotesInput.value = '';
-    diaperDeleteRow.style.display = 'none';
-    diaperModalOverlay.classList.add('open');
-  }
-  function openEditDiaper(id){
-    const d = data.diapers.find(x=>x.id===id);
-    if(!d) return;
-    editingDiaperId = id;
-    diaperModalTitle.textContent = 'עריכת החתלה';
-    setSelectedType(d.type);
-    diaperTimeInput.value = toLocalInputValue(d.timestamp);
-    diaperNotesInput.value = d.notes || '';
-    diaperDeleteRow.style.display = 'flex';
-    diaperModalOverlay.classList.add('open');
-  }
-  function closeDiaperModal(){ diaperModalOverlay.classList.remove('open'); }
-
-  diaperSaveBtn.addEventListener('click', ()=>{
-    const ts = diaperTimeInput.value ? new Date(diaperTimeInput.value).getTime() : Date.now();
-    const notes = diaperNotesInput.value.trim();
-    if(editingDiaperId){
-      const d = data.diapers.find(x=>x.id===editingDiaperId);
-      if(d){ d.type=selectedType; d.timestamp=ts; d.notes=notes; }
-    } else {
-      data.diapers.push({id:uid(), type:selectedType, timestamp:ts, notes});
-    }
-    sortByTime(data.diapers);
-    save();
-    renderDiaper();
-    closeDiaperModal();
-    showToast('ההחתלה נשמרה');
-  });
-  diaperCancelBtn.addEventListener('click', closeDiaperModal);
-  diaperDeleteBtn.addEventListener('click', ()=>{
-    if(editingDiaperId){
-      data.diapers = data.diapers.filter(x=>x.id!==editingDiaperId);
-      save();
-      renderDiaper();
-    }
-    closeDiaperModal();
-    showToast('ההחתלה נמחקה');
-  });
-  diaperModalOverlay.addEventListener('click', e=>{ if(e.target===diaperModalOverlay) closeDiaperModal(); });
-  customDiaperBtn.addEventListener('click', openAddDiaper);
-
-  // ================= MENU =================
-  menuBtn.addEventListener('click', ()=> menuOverlay.classList.add('open'));
-  closeMenuBtn.addEventListener('click', ()=> menuOverlay.classList.remove('open'));
-  menuOverlay.addEventListener('click', e=>{ if(e.target===menuOverlay) menuOverlay.classList.remove('open'); });
-
-  exportBtn.addEventListener('click', ()=>{
-    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'גיבוי-תינוק-'+dateKey(Date.now())+'.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('הקובץ יוצא בהצלחה');
-  });
-
-  importBtn.addEventListener('click', ()=> importFile.click());
-  importFile.addEventListener('change', (e)=>{
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = function(evt){
-      try{
-        const parsed = JSON.parse(evt.target.result);
-        if(!Array.isArray(parsed.feedings)) throw new Error('invalid');
-        if(confirm('ייבוא הקובץ יחליף את כל הנתונים הקיימים. להמשיך?')){
+      clearBtn.addEventListener("click", () => {
+        if (
+          confirm(
+            "למחוק את כל הנתונים בענן? פעולה זו אינה הפיכה ותמחוק לכל המשתמשים המחוברים.",
+          )
+        ) {
           data = {
-            feedings: parsed.feedings || [],
-            diapers: parsed.diapers || [],
-            presets: parsed.presets || DEFAULT_PRESETS
+            babyName: data.babyName,
+            feedings: [],
+            diapers: [],
+            presets: DEFAULT_PRESETS,
           };
           save();
-          renderPresets();
-          renderFeeding();
-          renderDiaper();
-          menuOverlay.classList.remove('open');
-          showToast('הנתונים יובאו בהצלחה');
+          menuOverlay.classList.remove("open");
+          showToast("כל הנתונים נמחקו");
         }
-      }catch(err){
-        alert('הקובץ אינו תקין');
-      }
-    };
-    reader.readAsText(file);
-    importFile.value = '';
-  });
+      });
 
-  clearBtn.addEventListener('click', ()=>{
-    if(confirm('למחוק את כל הנתונים? פעולה זו אינה הפיכה.')){
-      data = {feedings:[], diapers:[], presets: DEFAULT_PRESETS};
-      save();
-      renderPresets();
-      renderFeeding();
-      renderDiaper();
-      menuOverlay.classList.remove('open');
-      showToast('כל הנתונים נמחקו');
-    }
-  });
-
-  // ================= TOAST =================
-  function showToast(msg, undoFn){
-    clearTimeout(toastTimer);
-    toastMsg.textContent = msg;
-    if(undoFn){
-      toastUndo.style.display='inline-block';
-      toastUndo.onclick = ()=>{
-        undoFn();
-        toast.classList.remove('show');
+      // TOAST
+      function showToast(msg) {
         clearTimeout(toastTimer);
-      };
-    } else {
-      toastUndo.style.display='none';
-      toastUndo.onclick = null;
-    }
-    toast.classList.add('show');
-    toastTimer = setTimeout(()=> toast.classList.remove('show'), 4500);
-  }
+        toastMsg.textContent = msg;
+        toast.classList.add("show");
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 3000);
+      }
 
-  // ================= INIT =================
-  renderPresets();
-  renderFeeding();
-  renderDiaper();
-  setInterval(()=>{ renderFeedingStatus(); renderDiaperStatus(); }, 1000);
-})();
-</script>
-</body>
+      // TIMER
+      setInterval(() => {
+        renderFeedingStatus();
+        renderDiaperStatus();
+      }, 1000);
+    </script>
+  </body>
 </html>
